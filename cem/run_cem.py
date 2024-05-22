@@ -53,6 +53,9 @@ def run_task(vv, log_dir, exp_name):
     vv['num_elites'] = vv['population_size'] // 10
     vv = update_env_kwargs(vv)
 
+    ################################################
+    vv['num_variations'] = 4
+
     # Configure logger
     logger.configure(dir=log_dir, exp_name=exp_name)
     logdir = logger.get_dir()

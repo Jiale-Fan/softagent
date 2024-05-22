@@ -53,6 +53,12 @@ def run_task(vv, log_dir, exp_name):
     vv['num_elites'] = vv['population_size'] // 10
     vv = update_env_kwargs(vv)
 
+
+    ###########################################
+    vv["env_kwargs"]['num_variations'] = 1
+    # vv["env_kwargs"]['headless'] = False
+    ###########################################
+
     # Configure logger
     logger.configure(dir=log_dir, exp_name=exp_name)
     logdir = logger.get_dir()
@@ -81,8 +87,8 @@ def run_task(vv, log_dir, exp_name):
     env = env_class(**env_kwargs)
 
     env_kwargs_render = copy.deepcopy(env_kwargs)
-    env_kwargs_render['env_kwargs']['render'] = True
-    env_render = env_class(**env_kwargs_render)
+    env_kwargs_render['env_kwargs']['render'] = True # whether the rendered is displayed is controled by the flag "headless"
+    env_render = env_class(**env_kwargs_render) # this object is only used for rendering at last
 
     policy = CEMPolicy(env, env_class, env_kwargs, vv['use_mpc'], plan_horizon=vv['plan_horizon'], max_iters=vv['max_iters'],
                        population_size=vv['population_size'], num_elites=vv['num_elites'])
@@ -90,7 +96,7 @@ def run_task(vv, log_dir, exp_name):
     initial_states, action_trajs, configs, all_infos = [], [], [], []
     for i in range(vv['test_episodes']):
         logger.log('episode ' + str(i))
-        obs = env.reset()
+        obs = env.reset() # if the obs mode is key_point, obs is a 36 dim vector containing coords of 10 key points and 2 gripper positions
         policy.reset()
         initial_state = env.get_state()
         action_traj = []
@@ -132,9 +138,9 @@ def main():
     parser = argparse.ArgumentParser()
     # Experiment
     parser.add_argument('--exp_name', default='cem', type=str)
-    parser.add_argument('--env_name', default='ClothFlatten', type=str)
+    parser.add_argument('--env_name', default='RopeFlatten', type=str)
     parser.add_argument('--log_dir', default='./data/cem', type=str)
-    parser.add_argument('--test_episodes', default=10, type=int)
+    parser.add_argument('--test_episodes', default=1, type=int)
     parser.add_argument('--seed', default=100, type=int)
 
     # CEM
@@ -143,7 +149,7 @@ def main():
     parser.add_argument('--use_mpc', default=True, type=bool)
 
     # Override environment arguments
-    parser.add_argument('--env_kwargs_render', default=False, type=bool)
+    parser.add_argument('--env_kwargs_render', default=True, type=bool)
     parser.add_argument('--env_kwargs_camera_name', default='default_camera', type=str)
     parser.add_argument('--env_kwargs_observation_mode', default='key_point', type=str)
 

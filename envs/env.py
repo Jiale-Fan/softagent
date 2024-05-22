@@ -43,7 +43,7 @@ class SoftGymEnv(object):
         self._env = SOFTGYM_ENVS[env](**env_kwargs)
         self._env = normalize(self._env, scale_reward=scale_reward, clip_obs=clip_obs)
         self.symbolic = symbolic
-        self._env.seed(seed)
+        # self._env.seed(seed)
         self.max_episode_length = max_episode_length
         self.action_repeat = action_repeat
         self.bit_depth = bit_depth
