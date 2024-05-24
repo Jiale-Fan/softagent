@@ -52,7 +52,7 @@ def main():
     parser = argparse.ArgumentParser()
     # Experiment
     parser.add_argument('--exp_name', default='CURL_SAC', type=str)
-    parser.add_argument('--env_name', default='RopeFlatten', type=str)
+    parser.add_argument('--env_name', default='RopeFlatten', type=str) # !!! Everything starts here
     parser.add_argument('--log_dir', default='./data/curl/', type=str)
     parser.add_argument('--test_episodes', default=10, type=int)
     parser.add_argument('--seed', default=100, type=int)
