@@ -4,5 +4,4 @@ export PYTHONPATH="${PYTHONPATH}:/${PWD}"
 cd ~/softgym
 source ./prepare_1.0.sh
 cd ~/softagent
-conda activate softagent
 

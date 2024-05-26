@@ -6,7 +6,7 @@ import json
 import copy
 
 from curl import utils
-from curl.logger import Logger
+# from curl.logger import Logger
 
 from curl.curl_sac import CurlSacAgent
 from curl.default_config import DEFAULT_CONFIG
@@ -18,6 +18,9 @@ from softgym.utils.visualization import save_numpy_as_gif, make_grid
 import matplotlib.pyplot as plt
 from softgym.registered_env import env_arg_dict
 import pickle
+import matplotlib.pyplot as plt
+import numpy as np
+from tqdm import tqdm
 
 
 def update_env_kwargs(vv):
@@ -154,48 +157,57 @@ def main_run(args):
     start_time = time.time()
 
     img_size = 720
-    all_frames, all_rewards, all_actions, all_keypoints = [], [], [], []
+    
     sample_stochastically = False
 
-    num_episodes = 8
+    num_episodes = 100
 
-    for i in range(num_episodes):
-        obs = env.reset()
-        done = False
-        episode_reward = 0
-        frames, rewards, actions, keypoints = [], [], [], []
-        while not done:
-            keypoints.append(obs.to('cpu').numpy())
-            frames.append(env.get_image(128, 128))
-            # center crop image
-            if args.encoder_type == 'pixel':
-                obs = utils.center_crop_image(obs, args.image_size)
-            with utils.eval_mode(agent):
-                if sample_stochastically:
-                    action = agent.sample_action(obs)
-                else:
-                    action = agent.select_action(obs)
-            actions.append(action)
-            obs, reward, done, info = env.step(action)
-            rewards.append(reward)
+    for j in range(1):
+
+        all_frames, all_rewards, all_actions, all_keypoints, all_depths = [], [], [], [], []
+
+        for i in tqdm(range(num_episodes)):
+            obs = env.reset()
+            done = False
+            episode_reward = 0
+            frames, rewards, actions, keypoints, depths = [], [], [], [], []
+            while not done:
+                keypoints.append(obs.to('cpu').numpy())
+                frames.append(env.get_image(128, 128))
+                # center crop image
+                if args.encoder_type == 'pixel':
+                    obs = utils.center_crop_image(obs, args.image_size)
+                with utils.eval_mode(agent):
+                    if sample_stochastically:
+                        action = agent.sample_action(obs)
+                    else:
+                        action = agent.select_action(obs)
+                actions.append(action)
+                obs, reward, done, info = env.step(action)
+                depth = env.get_depth(128, 128)
+                plt.imsave(arr=depth, fname="./data/test.png", cmap='gray')
+
+                depths.append(depth)
+                rewards.append(reward)
+                
             
-        
-        all_frames.append(frames)
-        all_rewards.append(rewards)
-        all_actions.append(actions)
-        all_keypoints.append(keypoints)
+            all_frames.append(frames)
+            all_rewards.append(rewards)
+            all_actions.append(actions)
+            all_keypoints.append(keypoints)
+            all_depths.append(depths)
 
-    ## not converting to numpy arrays helps to deal with variable length episodes
-    # all_frames_numpy = np.array(all_frames)
-    # all_rewards_numpy = np.array(all_rewards)
-    # all_actions_numpy = np.array(all_actions)
-    # all_keypoints_numpy = np.array(all_keypoints)
+        ## not converting to numpy arrays helps to deal with variable length episodes
+        # all_frames_numpy = np.array(all_frames)
+        # all_rewards_numpy = np.array(all_rewards)
+        # all_actions_numpy = np.array(all_actions)
+        # all_keypoints_numpy = np.array(all_keypoints)
 
-    # data = {'states': all_frames_numpy, 'rewards': all_rewards_numpy, 'actions': all_actions_numpy, 'keypoints': all_keypoints_numpy}
-    data = {'states': all_frames, 'rewards': all_rewards, 'actions': all_actions, 'keypoints': all_keypoints}
-    with open(os.path.join(args.work_dir, 'data.pkl'), 'wb') as f:
-        pickle.dump(data, f)
-        print('Data saved to %s' % os.path.join(args.work_dir, 'data.pkl'))
+        # data = {'states': all_frames_numpy, 'rewards': all_rewards_numpy, 'actions': all_actions_numpy, 'keypoints': all_keypoints_numpy}
+        data = {'states': all_frames, 'rewards': all_rewards, 'actions': all_actions, 'keypoints': all_keypoints, 'depths': all_depths}
+        with open(os.path.join(args.work_dir, f'data_{j}.pkl'), 'wb') as f:
+            pickle.dump(data, f)
+            print('Data saved to %s' % os.path.join(args.work_dir, f'data_{j}.pkl'))
 
     pass
     # all_frames = np.array(all_frames).swapaxes(0, 1)
@@ -288,7 +300,7 @@ def main():
     args.env_kwargs = env_arg_dict[env_name]
 
     ################################
-    args.env_kwargs['headless'] = False
+    args.env_kwargs['headless'] = True
 
     run_task(args.__dict__, args.log_dir, args.exp_name)
 
