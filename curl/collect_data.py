@@ -162,7 +162,7 @@ def main_run(args):
 
     num_episodes = 100
 
-    for j in range(1):
+    for j in range(10):
 
         all_frames, all_rewards, all_actions, all_keypoints, all_depths = [], [], [], [], []
 
@@ -267,7 +267,7 @@ def main():
     # Experiment
     parser.add_argument('--exp_name', default='CURL_SAC', type=str)
     parser.add_argument('--env_name', default='RopeFlatten', type=str) # !!! Everything starts here
-    parser.add_argument('--log_dir', default='./data/curl/', type=str)
+    parser.add_argument('--log_dir', default='./data/curl_v0.4/', type=str)
     parser.add_argument('--test_episodes', default=10, type=int)
     parser.add_argument('--seed', default=100, type=int)
     parser.add_argument('--save_tb', default=False)  # Save stats to tensorbard
