@@ -150,7 +150,7 @@ def main_run(args):
         device=device
     )
 
-    agent.load(os.path.join(args.work_dir, 'model'), '150000')
+    agent.load(os.path.join(args.work_dir, 'model'), '50000')
 
 
     episode, episode_reward, done, ep_info = 0, 0, True, []
@@ -162,7 +162,7 @@ def main_run(args):
 
     num_episodes = 100
 
-    for j in range(10):
+    for j in range(1):
 
         all_frames, all_rewards, all_actions, all_keypoints, all_depths = [], [], [], [], []
 
@@ -193,6 +193,7 @@ def main_run(args):
             
             all_frames.append(frames)
             all_rewards.append(rewards)
+            print('episode avg reward:', np.array(all_rewards).sum(1).mean())
             all_actions.append(actions)
             all_keypoints.append(keypoints)
             all_depths.append(depths)
@@ -204,10 +205,10 @@ def main_run(args):
         # all_keypoints_numpy = np.array(all_keypoints)
 
         # data = {'states': all_frames_numpy, 'rewards': all_rewards_numpy, 'actions': all_actions_numpy, 'keypoints': all_keypoints_numpy}
-        data = {'states': all_frames, 'rewards': all_rewards, 'actions': all_actions, 'keypoints': all_keypoints, 'depths': all_depths}
-        with open(os.path.join(args.work_dir, f'data_{j}.pkl'), 'wb') as f:
-            pickle.dump(data, f)
-            print('Data saved to %s' % os.path.join(args.work_dir, f'data_{j}.pkl'))
+        # data = {'states': all_frames, 'rewards': all_rewards, 'actions': all_actions, 'keypoints': all_keypoints, 'depths': all_depths}
+        # with open(os.path.join(args.work_dir, f'data_{j}.pkl'), 'wb') as f:
+        #     pickle.dump(data, f)
+        #     print('Data saved to %s' % os.path.join(args.work_dir, f'data_{j}.pkl'))
 
     pass
     # all_frames = np.array(all_frames).swapaxes(0, 1)
@@ -267,7 +268,7 @@ def main():
     # Experiment
     parser.add_argument('--exp_name', default='CURL_SAC', type=str)
     parser.add_argument('--env_name', default='RopeFlatten', type=str) # !!! Everything starts here
-    parser.add_argument('--log_dir', default='./data/curl_v0.4/', type=str)
+    parser.add_argument('--log_dir', default='./data/curl', type=str)
     parser.add_argument('--test_episodes', default=10, type=int)
     parser.add_argument('--seed', default=100, type=int)
     parser.add_argument('--save_tb', default=False)  # Save stats to tensorbard
@@ -283,7 +284,7 @@ def main():
     # Override environment arguments
     parser.add_argument('--env_kwargs_render', default=True, type=bool)  # Turn off rendering can speed up training
     parser.add_argument('--env_kwargs_camera_name', default='default_camera', type=str)
-    parser.add_argument('--env_kwargs_observation_mode', default='key_point', type=str)  # Should be in ['key_point', 'cam_rgb', 'point_cloud']
+    parser.add_argument('--env_kwargs_observation_mode', default='cam_rgb', type=str)  # Should be in ['key_point', 'cam_rgb', 'point_cloud']
 
     args = parser.parse_args()
 
